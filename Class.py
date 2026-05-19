@@ -23,6 +23,18 @@ class Student:
         if len(grades) == 0:
             return 0
         return round(sum(grades) / len(grades), 1)
+    def __eq__(self, other):
+        if isinstance(self, Student) and isinstance(other, Student):
+            return self.average_score() == other.average_score()
+        return 'Error'
+    def __lt__(self, other):
+        if isinstance(self, Student) and isinstance(other, Student):
+            return self.average_score() < other.average_score()
+        return 'Error'
+    def __gt__(self, other):
+        if isinstance(self, Student) and isinstance(other, Student):    
+            return self.average_score() > other.average_score()
+        return 'Error'
     def __str__(self):
         return (f'Имя:{self.name}\n'
                 f'Фамилия:{self.surname}\n'
@@ -51,7 +63,21 @@ class Lecturer(Mentor):
             return 0
         return round(sum(grades) / len(grades), 1)
     def __str__(self):
-        return f'Имя:{self.name}\nФамилия:{self.surname}\nСредняя оценка за лекции:{self.average_score()}'
+        return (f'Имя:{self.name}\n'
+        f'Фамилия:{self.surname}\n'
+        f'Средняя оценка за лекции:{self.average_score()}')
+    def __eq__(self, other):
+        if isinstance(self, Lecturer) and isinstance(other, Lecturer):
+            return self.average_score() == other.average_score()
+        return 'Error'
+    def __lt__(self, other):
+        if isinstance(self, Lecturer) and isinstance(other, Lecturer):
+            return self.average_score() < other.average_score()
+        return 'Error'
+    def __gt__(self, other):
+        if isinstance(self, Lecturer) and isinstance(other, Lecturer):    
+            return self.average_score() > other.average_score()
+        return 'Error'
 
 class Reviewer(Mentor):
     def __init__ (self, name, surname):
@@ -67,26 +93,61 @@ class Reviewer(Mentor):
         else:
             return 'Error'
     def __str__(self):
-        return f'Имя:{self.name}\nФамилия:{self.surname}'
+        return (f'Имя:{self.name}\n'
+                f'Фамилия:{self.surname}')
+    
+def overall_gpa_hw(students{}, ):
+    return 
 
-lecturer = Lecturer('Иван', 'Иванов')
-reviewer = Reviewer('Пётр', 'Петров')
-student = Student('Ольга', 'Алёхина', 'Ж')
- 
-student.courses_in_progress += ['Python', 'Java']
-lecturer.courses_attached += ['Python', 'C++']
-reviewer.courses_attached += ['Python', 'C++']
- 
-print(student.rate_lecture(lecturer, 'Python', 7))   # None
-print(student.rate_lecture(lecturer, 'Java', 8))     # Ошибка
-print(student.rate_lecture(lecturer, 'C++', 8))      # Ошибка
-print(student.rate_lecture(reviewer, 'Python', 6))   # Ошибка
- 
-print(lecturer.grades)  # {'Python': [7]}
+def overall_gpa():
+    return 
 
-print(reviewer)
-print(lecturer)
-print(student)
+lecturer_1 = Lecturer('Иван', 'Иванов')
+lecturer_2 = Lecturer('Антон', 'Антонов')
+reviewer_1 = Reviewer('Пётр', 'Петров')
+reviewer_2 = Reviewer('Алексей', 'Алексеев')
+student_1 = Student('Ольга', 'Алёхина', 'Ж')
+student_2 = Student('Олег', 'Алёхин', 'М')
+ 
+student_1.courses_in_progress += ['Python', 'Java']
+student_2.courses_in_progress += ['Python', 'C++']
+
+lecturer_1.courses_attached += ['Python', 'C++']
+lecturer_2.courses_attached += ['Java', 'C++']
+
+reviewer_1.courses_attached += ['Python', 'C++']
+reviewer_2.courses_attached += ['Python', 'Java']
+
+reviewer_1.rate_hw(student_1, 'Python', 8)
+reviewer_2.rate_hw(student_2, 'Python', 4)
+ 
+print(student_1.rate_lecture(lecturer_1, 'Python', 7))    # None
+print(student_1.rate_lecture(lecturer_1, 'Java', 8))    # Ошибка
+print(student_1.rate_lecture(lecturer_1, 'C++', 8))    # Ошибка
+print(student_1.rate_lecture(reviewer_1, 'Python', 6))    # Ошибка
+
+print(student_2.rate_lecture(lecturer_2, 'C++', 8))
+print(student_1.rate_lecture(lecturer_2, 'Java', 6))
+ 
+print(lecturer_1.grades)    # {'Python': [7]}
+print(lecturer_2.grades)    # {'C++': [8], 'Java': [6]}
+
+print(reviewer_1)
+print(lecturer_1)
+print(student_1)
+print(reviewer_2)
+print(lecturer_2)
+print(student_2)
+
+print(student_1 < student_2)    # True
+print(student_1 > student_2)    # False
+print(student_1 == student_2)    # False
+print(student_1 < lecturer_2)    # Error
+
+print(lecturer_1 < lecturer_2)    # False
+print(lecturer_1 > lecturer_2)    # False
+print(lecturer_1 == lecturer_1)    # True
+print(lecturer_1 == reviewer_1)    # Error
 
 # best_student = Student('Ruoy', 'Eman', 'your_gender')
 # best_student.courses_in_progress += ['Python']
