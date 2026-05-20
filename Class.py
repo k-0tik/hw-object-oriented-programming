@@ -36,11 +36,13 @@ class Student:
             return self.average_score() > other.average_score()
         return 'Error'
     def __str__(self):
-        return (f'Имя:{self.name}\n'
+        return (f'\n'
+                f'Имя:{self.name}\n'
                 f'Фамилия:{self.surname}\n'
                 f'Средняя оценка за домашние задания:{self.average_score()}\n'
                 f'Курсы в процессе изучения:{self.courses_in_progress}\n'
                 f'Завершенные курсы:{self.finished_courses}')
+
 
 class Mentor:
     def __init__ (self, name, surname):
@@ -63,9 +65,10 @@ class Lecturer(Mentor):
             return 0
         return round(sum(grades) / len(grades), 1)
     def __str__(self):
-        return (f'Имя:{self.name}\n'
-        f'Фамилия:{self.surname}\n'
-        f'Средняя оценка за лекции:{self.average_score()}')
+        return (f'\n'
+                f'Имя:{self.name}\n'
+                f'Фамилия:{self.surname}\n'
+                f'Средняя оценка за лекции:{self.average_score()}')
     def __eq__(self, other):
         if isinstance(self, Lecturer) and isinstance(other, Lecturer):
             return self.average_score() == other.average_score()
@@ -93,14 +96,28 @@ class Reviewer(Mentor):
         else:
             return 'Error'
     def __str__(self):
-        return (f'Имя:{self.name}\n'
+        return (f'\n'
+                f'Имя:{self.name}\n'
                 f'Фамилия:{self.surname}')
-    
-def overall_gpa_hw(students{}, ):
-    return 
 
-def overall_gpa():
-    return 
+    
+def overall_gpa_hw(students: list[Student], course: str):
+    sum_grade = 0
+    count = 0
+    for student in students:
+        if isinstance(student, Student) and (course in student.finished_courses or student.courses_in_progress):
+            count += 1
+            sum_grade += student.average_score()
+    return round(sum_grade / count, 1)
+
+def overall_gpa(lecturers: list[Lecturer], course: str):
+    sum_grade = 0
+    count = 0
+    for lecturer in lecturers:
+        if isinstance(lecturer, Lecturer) and (course in lecturer.courses_attached):
+            count += 1
+            sum_grade += lecturer.average_score()
+    return round(sum_grade / count, 1)
 
 lecturer_1 = Lecturer('Иван', 'Иванов')
 lecturer_2 = Lecturer('Антон', 'Антонов')
@@ -122,47 +139,42 @@ reviewer_1.rate_hw(student_1, 'Python', 8)
 reviewer_2.rate_hw(student_2, 'Python', 4)
  
 print(student_1.rate_lecture(lecturer_1, 'Python', 7))    # None
-print(student_1.rate_lecture(lecturer_1, 'Java', 8))    # Ошибка
-print(student_1.rate_lecture(lecturer_1, 'C++', 8))    # Ошибка
-print(student_1.rate_lecture(reviewer_1, 'Python', 6))    # Ошибка
+print(student_2.rate_lecture(lecturer_1, 'C++', 7))    # None
+print(student_1.rate_lecture(lecturer_1, 'Java', 8))    # Error
+print(student_1.rate_lecture(lecturer_1, 'C++', 8))    # Error
+print(student_1.rate_lecture(reviewer_1, 'Python', 6))    # Error
+# print(student_2.rate_lecture(lecturer_1, 'C++', 11))    # Ошибка
 
-print(student_2.rate_lecture(lecturer_2, 'C++', 8))
-print(student_1.rate_lecture(lecturer_2, 'Java', 6))
+print(student_2.rate_lecture(lecturer_2, 'C++', 8))    # None
+print(student_1.rate_lecture(lecturer_2, 'Java', 6))    # None
  
-print(lecturer_1.grades)    # {'Python': [7]}
+print(lecturer_1.grades)    # {'Python': [7], 'C++': [7]}
 print(lecturer_2.grades)    # {'C++': [8], 'Java': [6]}
 
+print('\n', '--Эксперты--')
 print(reviewer_1)
-print(lecturer_1)
-print(student_1)
 print(reviewer_2)
+print('\n', '--Лекторы--')
+print(lecturer_1)
 print(lecturer_2)
+print('\n', '--Студенты--')
+print(student_1)
 print(student_2)
 
-print(student_1 < student_2)    # True
-print(student_1 > student_2)    # False
+print('\n', '--Сравнение студентов по среднему баллу--')
+print(student_1 < student_2)    # False
+print(student_1 > student_2)    # True
 print(student_1 == student_2)    # False
 print(student_1 < lecturer_2)    # Error
 
+print('\n', '--Сравнение лекторов по среднему баллу--')
 print(lecturer_1 < lecturer_2)    # False
 print(lecturer_1 > lecturer_2)    # False
-print(lecturer_1 == lecturer_1)    # True
+print(lecturer_1 == lecturer_2)    # True
 print(lecturer_1 == reviewer_1)    # Error
 
-# best_student = Student('Ruoy', 'Eman', 'your_gender')
-# best_student.courses_in_progress += ['Python']
+print('\n', '--Общий средний балл за домашние задания по курсу--')
+print (overall_gpa_hw([student_1, student_2], 'Python'))    # 6.0
 
-# cool_mentor = Mentor ('Some', 'Buddy')
-# cool_mentor.courses_attached += ['Python']
-
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-
-# print(isinstance(lecturer, Mentor)) # True
-# print(isinstance(reviewer, Mentor)) # True
-
-# print(lecturer.courses_attached)    # []
-# print(reviewer.courses_attached)    # []
-
-# print(best_student.grades)
+print('\n', '--Общий средний балл за лекции по курсу--')
+print (overall_gpa([lecturer_1, lecturer_2], 'C++'))    # 7.5
