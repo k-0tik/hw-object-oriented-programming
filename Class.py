@@ -9,6 +9,8 @@ class Student:
     def add_courses(self, course_name):
         self.finished_courses.append(course_name)
     def rate_lecture(self, lecturer, course, grade):
+        if grade < 1 or grade > 10:
+            return 'Error'
         if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
             if course in lecturer.grades:
                 lecturer.grades[course] += [grade]
@@ -64,6 +66,10 @@ class Lecturer(Mentor):
         if len(grades) == 0:
             return 0
         return round(sum(grades) / len(grades), 1)
+    def course_average_score(self, course):
+        if course in self.courses_attached:
+            return round(sum(self.grades[course]) / len(self.grades[course]), 1)
+        return 'Error'
     def __str__(self):
         return (f'\n'
                 f'Имя:{self.name}\n'
@@ -88,6 +94,8 @@ class Reviewer(Mentor):
         self.surname = surname
         self.courses_attached = []
     def rate_hw(self, student, course, grade):
+        if grade < 1 or grade > 10:
+            return 'Error'
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
             if course in student.grades:
                 student.grades[course] += [grade]
@@ -116,7 +124,7 @@ def overall_gpa(lecturers: list[Lecturer], course: str):
     for lecturer in lecturers:
         if isinstance(lecturer, Lecturer) and (course in lecturer.courses_attached):
             count += 1
-            sum_grade += lecturer.average_score()
+            sum_grade += lecturer.course_average_score(course)
     return round(sum_grade / count, 1)
 
 lecturer_1 = Lecturer('Иван', 'Иванов')
@@ -137,13 +145,14 @@ reviewer_2.courses_attached += ['Python', 'Java']
 
 reviewer_1.rate_hw(student_1, 'Python', 8)
 reviewer_2.rate_hw(student_2, 'Python', 4)
+reviewer_2.rate_hw(student_2, 'Python', 23)    # Error
  
 print(student_1.rate_lecture(lecturer_1, 'Python', 7))    # None
 print(student_2.rate_lecture(lecturer_1, 'C++', 7))    # None
 print(student_1.rate_lecture(lecturer_1, 'Java', 8))    # Error
 print(student_1.rate_lecture(lecturer_1, 'C++', 8))    # Error
 print(student_1.rate_lecture(reviewer_1, 'Python', 6))    # Error
-# print(student_2.rate_lecture(lecturer_1, 'C++', 11))    # Ошибка
+print(student_2.rate_lecture(lecturer_1, 'C++', 11))    # Error
 
 print(student_2.rate_lecture(lecturer_2, 'C++', 8))    # None
 print(student_1.rate_lecture(lecturer_2, 'Java', 6))    # None
