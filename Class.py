@@ -10,14 +10,14 @@ class Student:
         self.finished_courses.append(course_name)
     def rate_lecture(self, lecturer, course, grade):
         if grade < 1 or grade > 10:
-            return 'Error'
+            return 'Оценка может быть числом от 1 до 10'
         if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
             if course in lecturer.grades:
                 lecturer.grades[course] += [grade]
             else:
                 lecturer.grades[course] = [grade]
         else:
-            return 'Error'
+            return 'Вы пытаетесь поставить оценку лектору, который не преподает на этом курсе или не является преподавателем'
     def average_score(self):
         grades = []
         for grades_list in self.grades.values():
@@ -25,18 +25,25 @@ class Student:
         if len(grades) == 0:
             return 0
         return round(sum(grades) / len(grades), 1)
+    def course_average_score(self, course):
+        if course in self.courses_in_progress or course in self.finished_courses:
+            if course in self.grades and len(self.grades[course]) > 0:
+                return round(sum(self.grades[course]) / len(self.grades[course]), 1)
+            else:
+                return 'У студента нет оценок'
+        return 'Студент не учится на этом курсе'
     def __eq__(self, other):
         if isinstance(self, Student) and isinstance(other, Student):
             return self.average_score() == other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
     def __lt__(self, other):
         if isinstance(self, Student) and isinstance(other, Student):
             return self.average_score() < other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
     def __gt__(self, other):
         if isinstance(self, Student) and isinstance(other, Student):    
             return self.average_score() > other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
     def __str__(self):
         return (f'\n'
                 f'Имя:{self.name}\n'
@@ -55,8 +62,7 @@ class Mentor:
 
 class Lecturer(Mentor):
     def __init__ (self, name, surname):
-        self.name = name
-        self.surname = surname
+        super().__init__ (name, surname)
         self.courses_attached = []
         self.grades = {}
     def average_score(self):
@@ -69,7 +75,7 @@ class Lecturer(Mentor):
     def course_average_score(self, course):
         if course in self.courses_attached:
             return round(sum(self.grades[course]) / len(self.grades[course]), 1)
-        return 'Error'
+        return 'У преподавателя нет оценок или он не преподает на этом курсе'
     def __str__(self):
         return (f'\n'
                 f'Имя:{self.name}\n'
@@ -78,31 +84,30 @@ class Lecturer(Mentor):
     def __eq__(self, other):
         if isinstance(self, Lecturer) and isinstance(other, Lecturer):
             return self.average_score() == other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
     def __lt__(self, other):
         if isinstance(self, Lecturer) and isinstance(other, Lecturer):
             return self.average_score() < other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
     def __gt__(self, other):
         if isinstance(self, Lecturer) and isinstance(other, Lecturer):    
             return self.average_score() > other.average_score()
-        return 'Error'
+        return 'Вы пытаетесь сравнивать представителей разного класса'
 
 class Reviewer(Mentor):
     def __init__ (self, name, surname):
-        self.name = name
-        self.surname = surname
+        super().__init__ (name, surname)
         self.courses_attached = []
     def rate_hw(self, student, course, grade):
         if grade < 1 or grade > 10:
-            return 'Error'
+            return 'Оценка может быть числом от 1 до 10'
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
             if course in student.grades:
                 student.grades[course] += [grade]
             else:
                 student.grades[course] = [grade]
         else:
-            return 'Error'
+            return 'Вы пытаетесь поставить оценку студенту, котрый не учиться на этом курсе или не является студентом'
     def __str__(self):
         return (f'\n'
                 f'Имя:{self.name}\n'
@@ -113,16 +118,24 @@ def overall_gpa_hw(students: list[Student], course: str):
     sum_grade = 0
     count = 0
     for student in students:
-        if isinstance(student, Student) and (course in student.finished_courses or student.courses_in_progress):
+        if not isinstance(student, Student) and (course not in student.finished_courses or course not in student.courses_in_progress):
+            return f'Студент {student.name} {student.surname} не учится на курсе {course} или не является студентом'
+        else:
+            if isinstance(student.course_average_score(course), str):
+                return f'У студента {student.name} {student.surname} нет оценок по курсу {course}'
             count += 1
-            sum_grade += student.average_score()
+            sum_grade += student.course_average_score(course)
     return round(sum_grade / count, 1)
 
 def overall_gpa(lecturers: list[Lecturer], course: str):
     sum_grade = 0
     count = 0
     for lecturer in lecturers:
-        if isinstance(lecturer, Lecturer) and (course in lecturer.courses_attached):
+        if not isinstance(lecturer, Lecturer) and (course not in lecturer.courses_attached):
+            return f'Преподаватель {lecturer.name} {lecturer.surname} не преподает на курсе {course} или не является лектором'
+        else:
+            if isinstance(lecturer.course_average_score(course), str):
+                return f'У преподавателя {lecturer.name} {lecturer.surname} нет оценок по курсу {course}'
             count += 1
             sum_grade += lecturer.course_average_score(course)
     return round(sum_grade / count, 1)
@@ -184,6 +197,10 @@ print(lecturer_1 == reviewer_1)    # Error
 
 print('\n', '--Общий средний балл за домашние задания по курсу--')
 print (overall_gpa_hw([student_1, student_2], 'Python'))    # 6.0
+print (overall_gpa_hw([student_1, student_2], 'Java'))    # Error
+print (overall_gpa_hw([student_1, student_2], 'C#'))    # Error
 
 print('\n', '--Общий средний балл за лекции по курсу--')
 print (overall_gpa([lecturer_1, lecturer_2], 'C++'))    # 7.5
+print (overall_gpa([lecturer_1, lecturer_2], 'Java'))    # Error
+print (overall_gpa([lecturer_1, lecturer_2], 'C#'))    # Error
