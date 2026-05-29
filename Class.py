@@ -54,16 +54,15 @@ class Student:
 
 
 class Mentor:
-    def __init__ (self, name, surname):
+    def __init__(self, name, surname, courses_attached=None):
         self.name = name
         self.surname = surname
-        self.courses_attached = []
+        self.courses_attached = courses_attached if courses_attached is not None else []
     
 
 class Lecturer(Mentor):
-    def __init__ (self, name, surname):
-        super().__init__ (name, surname)
-        self.courses_attached = []
+    def __init__(self, name, surname):
+        super().__init__(name, surname, courses_attached=[])
         self.grades = {}
     def average_score(self):
         grades = []
@@ -95,9 +94,8 @@ class Lecturer(Mentor):
         return 'Вы пытаетесь сравнивать представителей разного класса'
 
 class Reviewer(Mentor):
-    def __init__ (self, name, surname):
-        super().__init__ (name, surname)
-        self.courses_attached = []
+    def __init__(self, name, surname):
+        super().__init__(name, surname, courses_attached=[])
     def rate_hw(self, student, course, grade):
         if grade < 1 or grade > 10:
             return 'Оценка может быть числом от 1 до 10'
